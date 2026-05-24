@@ -231,7 +231,7 @@ export default function ApplyPage() {
                             <Button
                               key={v}
                               type="button"
-                              size="sm"
+                              className="flex-1 h-11"
                               variant={answers[q.field_key] === v ? "default" : "outline"}
                               onClick={() =>
                                 setAnswers({ ...answers, [q.field_key]: v })
@@ -243,6 +243,11 @@ export default function ApplyPage() {
                         </div>
                       ) : q.criteria_type === "text" ? (
                         <Input
+                          inputMode={
+                            q.field_key.includes("zip") || q.field_key.includes("postal")
+                              ? "numeric"
+                              : undefined
+                          }
                           value={answers[q.field_key] || ""}
                           onChange={(e) =>
                             setAnswers({ ...answers, [q.field_key]: e.target.value })
@@ -295,7 +300,7 @@ function LangBtn({
     <button
       onClick={onClick}
       className={
-        "text-xs px-3 py-1 rounded-md border transition " +
+        "text-sm px-4 py-2 rounded-md border transition min-h-[40px] " +
         (active
           ? "bg-foreground text-background border-foreground"
           : "bg-background text-foreground hover:bg-accent")
