@@ -19,16 +19,16 @@ const PHASES: Phase[] = [
         → top right → <strong>Create App</strong>
       </>,
       <>
-        <strong>Use case:</strong> scroll → select <strong>Other</strong> →{" "}
+        <strong>Use case:</strong> scroll to{" "}
+        <strong>"Manage everything on your Page"</strong> (flag icon, listed
+        under the "Others" filter — has the description{" "}
+        <em>"Publish content and videos…"</em>) → check it →{" "}
         <strong>Next</strong>
       </>,
       <>
-        <strong>App type:</strong> select <strong>Business</strong> →{" "}
-        <strong>Next</strong>
-      </>,
-      <>
-        Display name: <code>Stillwater Hiring</code>. Email: yours. Business
-        Account: pick existing or create one.
+        On the next screen, fill in: Display name{" "}
+        <code>Stillwater Hiring</code>, your email, and pick or create a Meta
+        Business Account.
       </>,
       <>
         Click <strong>Create app</strong> (may prompt for FB password)
