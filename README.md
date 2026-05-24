@@ -1,6 +1,6 @@
-# Insulation Hiring Platform
+# Cy-Tex Insulators — Hiring Platform
 
-Hiring dashboard for a Houston insulation company. Receives applicants from Facebook Lead Ads via webhook, runs screening rules, fires SMS/email auto-replies, and tracks them through a kanban pipeline.
+Hiring dashboard for Cy-Tex Insulators (Houston). Publishes job postings to Facebook, hosts the public application form, runs screening rules on submissions, fires SMS/email auto-replies, and tracks applicants through a kanban pipeline.
 
 ## Stack
 

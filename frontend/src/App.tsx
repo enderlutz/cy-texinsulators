@@ -6,7 +6,10 @@ export default function App() {
   return (
     <div className="min-h-screen flex">
       <aside className="w-56 border-r bg-muted/30 p-4">
-        <div className="text-lg font-semibold mb-6">Insulation Hiring</div>
+        <div className="text-lg font-semibold mb-6 leading-tight">
+          Cy-Tex Insulators
+          <div className="text-xs font-normal text-muted-foreground">Hiring</div>
+        </div>
         <nav className="space-y-1">
           <NavItem to="/pipeline" icon={<Kanban size={16} />} label="Pipeline" />
           <NavItem to="/jobs" icon={<Briefcase size={16} />} label="Jobs" />

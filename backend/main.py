@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.routes import applicants, apply, jobs, screening, webhooks
 
-app = FastAPI(title="Insulation Hiring API", version="0.1.0")
+app = FastAPI(title="Cy-Tex Insulators Hiring API", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
