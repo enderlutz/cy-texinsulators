@@ -51,6 +51,14 @@ export interface ShareLinks {
   message: string;
 }
 
+export interface FbStatus {
+  connected: boolean;
+  page_id?: string;
+  page_name?: string;
+  connected_at?: string;
+  source: "db" | "env" | "none";
+}
+
 export interface Applicant {
   id: string;
   job_id?: string;
@@ -115,6 +123,19 @@ export const api = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+
+  fbStatus: () => request<FbStatus>("/settings/fb"),
+  fbConnect: (page_id: string, page_access_token: string) =>
+    request<FbStatus>("/settings/fb", {
+      method: "POST",
+      body: JSON.stringify({ page_id, page_access_token }),
+    }),
+  fbTest: () =>
+    request<{ ok: boolean; page_name?: string; error?: string; source: string }>(
+      "/settings/fb/test",
+      { method: "POST" }
+    ),
+  fbDisconnect: () => request<void>("/settings/fb", { method: "DELETE" }),
 };
 
 export const STAGES: Stage[] = ["new", "contacted", "interview", "hired", "rejected"];

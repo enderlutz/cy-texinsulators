@@ -226,6 +226,15 @@ CREATE TABLE IF NOT EXISTS communications (
     provider_id TEXT,
     sent_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS fb_integration (
+    id TEXT PRIMARY KEY,
+    page_id TEXT NOT NULL,
+    page_name TEXT,
+    page_access_token TEXT NOT NULL,
+    connected_at TEXT,
+    updated_at TEXT
+);
 """
 
 

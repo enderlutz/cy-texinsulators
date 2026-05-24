@@ -9,6 +9,7 @@ import JobsPage from "./pages/JobsPage";
 import PipelinePage from "./pages/PipelinePage";
 import ApplicantPage from "./pages/ApplicantPage";
 import ApplyPage from "./pages/ApplyPage";
+import SettingsPage from "./pages/SettingsPage";
 
 const qc = new QueryClient();
 
@@ -23,6 +24,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             <Route path="/pipeline" element={<PipelinePage />} />
             <Route path="/jobs" element={<JobsPage />} />
             <Route path="/applicants/:id" element={<ApplicantPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

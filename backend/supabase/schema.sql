@@ -75,6 +75,21 @@ create table if not exists communications (
 create index if not exists idx_communications_applicant on communications(applicant_id);
 
 -- ============================================================================
+-- fb_integration: singleton row holding the connected Facebook Page credentials
+-- Replaces env-var-based META_PAGE_ID / META_PAGE_ACCESS_TOKEN (still supported as fallback).
+-- ============================================================================
+create table if not exists fb_integration (
+  id                text primary key default 'singleton' check (id = 'singleton'),
+  page_id           text not null,
+  page_name         text,
+  page_access_token text not null,
+  connected_at      timestamptz default now(),
+  updated_at        timestamptz default now()
+);
+
+alter table fb_integration enable row level security;
+
+-- ============================================================================
 -- RLS: service-role only for v1 (backend talks via service_role key).
 -- When we add multi-tenant auth, replace with per-org policies.
 -- ============================================================================

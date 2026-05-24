@@ -50,6 +50,19 @@ class PublicApplication(BaseModel):
     answers: dict[str, str] = Field(default_factory=dict)
 
 
+class FbConnectRequest(BaseModel):
+    page_id: str = Field(..., min_length=1)
+    page_access_token: str = Field(..., min_length=10)
+
+
+class FbIntegrationStatus(BaseModel):
+    connected: bool
+    page_id: str | None = None
+    page_name: str | None = None
+    connected_at: datetime | None = None
+    source: Literal["db", "env", "none"] = "none"
+
+
 class ScreeningQuestionCreate(BaseModel):
     job_id: str
     question: str

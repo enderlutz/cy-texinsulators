@@ -1,18 +1,21 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { Briefcase, Kanban } from "lucide-react";
+import { Briefcase, Kanban, Settings as SettingsIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function App() {
   return (
     <div className="min-h-screen flex">
-      <aside className="w-56 border-r bg-muted/30 p-4">
+      <aside className="w-56 border-r bg-muted/30 p-4 flex flex-col">
         <div className="text-lg font-semibold mb-6 leading-tight">
           Cy-Tex Insulators
           <div className="text-xs font-normal text-muted-foreground">Hiring</div>
         </div>
-        <nav className="space-y-1">
+        <nav className="space-y-1 flex-1">
           <NavItem to="/pipeline" icon={<Kanban size={16} />} label="Pipeline" />
           <NavItem to="/jobs" icon={<Briefcase size={16} />} label="Jobs" />
+        </nav>
+        <nav className="space-y-1 pt-4 border-t">
+          <NavItem to="/settings" icon={<SettingsIcon size={16} />} label="Settings" />
         </nav>
       </aside>
       <main className="flex-1 p-6">

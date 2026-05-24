@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routes import applicants, apply, jobs, screening, webhooks
+from app.routes import applicants, apply, jobs, screening, settings as settings_routes, webhooks
 
 app = FastAPI(title="Cy-Tex Insulators Hiring API", version="0.1.0")
 
@@ -25,3 +25,4 @@ app.include_router(applicants.router)
 app.include_router(screening.router)
 app.include_router(webhooks.router)
 app.include_router(apply.router)
+app.include_router(settings_routes.router)
