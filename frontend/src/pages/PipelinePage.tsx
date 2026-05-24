@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import { api, Applicant, STAGES, Stage } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,8 +21,15 @@ export default function PipelinePage() {
   });
 
   const onDrop = async (stage: Stage, id: string) => {
-    await api.updateApplicant(id, { stage });
-    qc.invalidateQueries({ queryKey: ["applicants"] });
+    try {
+      await api.updateApplicant(id, { stage });
+      qc.invalidateQueries({ queryKey: ["applicants"] });
+      toast.success(`Moved to ${stage}`);
+    } catch (e) {
+      toast.error("Could not update stage", {
+        description: (e as Error).message,
+      });
+    }
   };
 
   const grouped: Record<Stage, Applicant[]> = {

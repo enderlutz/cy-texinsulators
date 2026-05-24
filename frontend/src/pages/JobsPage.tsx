@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Copy, Facebook, Link as LinkIcon } from "lucide-react";
+import { toast } from "sonner";
 import { api, Job } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,10 +20,13 @@ export default function JobsPage() {
 
   const create = useMutation({
     mutationFn: () => api.createJob(draft),
-    onSuccess: () => {
+    onSuccess: (job) => {
       qc.invalidateQueries({ queryKey: ["jobs"] });
       setDraft({ title: "", description: "", status: "draft" });
+      toast.success(`Job created: ${job.title}`);
     },
+    onError: (e: Error) =>
+      toast.error("Could not create job", { description: e.message }),
   });
 
   return (
@@ -98,17 +102,37 @@ function JobCard({ job }: { job: Job }) {
       setApplyUrl(d.apply_url);
       setOpen(true);
     },
+    onError: (e: Error) =>
+      toast.error("Could not load share details", { description: e.message }),
   });
 
   const publish = useMutation({
     mutationFn: () => api.publishJob(job.id, message, applyUrl),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["jobs"] }),
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ["jobs"] });
+      if (data.mock) {
+        toast.warning("Published in mock mode", {
+          description: "No Facebook Page connected — open Settings to connect one",
+        });
+      } else if (data.ok) {
+        toast.success("Posted to Facebook", {
+          description: "Click the View live post link to see it",
+        });
+      } else {
+        toast.error("Publish failed", {
+          description: data.message || "Check Settings → Test connection",
+        });
+      }
+    },
+    onError: (e: Error) =>
+      toast.error("Publish failed", { description: e.message }),
   });
 
   const copy = async (text: string, kind: "link" | "post") => {
     await navigator.clipboard.writeText(text);
     setCopied(kind);
     setTimeout(() => setCopied(null), 1500);
+    toast.success(kind === "link" ? "Apply link copied" : "Post message copied");
   };
 
   return (

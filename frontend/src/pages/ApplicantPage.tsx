@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { api, STAGES, Stage } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,12 +28,20 @@ export default function ApplicantPage() {
       setBody("");
       setSubject("");
       qc.invalidateQueries({ queryKey: ["applicant", id] });
+      toast.success(`${channel.toUpperCase()} sent`);
     },
+    onError: (e: Error) =>
+      toast.error("Send failed", { description: e.message }),
   });
 
   const updateStage = useMutation({
     mutationFn: (stage: Stage) => api.updateApplicant(id, { stage }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["applicant", id] }),
+    onSuccess: (_d, stage) => {
+      qc.invalidateQueries({ queryKey: ["applicant", id] });
+      toast.success(`Moved to ${stage}`);
+    },
+    onError: (e: Error) =>
+      toast.error("Could not update stage", { description: e.message }),
   });
 
   if (!applicant) return <div>Loading…</div>;

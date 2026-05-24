@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, ExternalLink, Facebook, XCircle } from "lucide-react";
+import { toast } from "sonner";
 import { api } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,15 +21,26 @@ export default function SettingsPage() {
 
   const connect = useMutation({
     mutationFn: () => api.fbConnect(pageId.trim(), token.trim()),
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["fb-status"] });
       setPageId("");
       setToken("");
+      toast.success(`Connected to ${data.page_name || "Facebook Page"}`);
     },
+    onError: (e: Error) =>
+      toast.error("Connection failed", { description: e.message }),
   });
 
   const test = useMutation({
     mutationFn: api.fbTest,
+    onSuccess: (data) => {
+      if (data.ok) {
+        toast.success(`Token valid for ${data.page_name}`);
+      } else {
+        toast.error("Token invalid", { description: data.error });
+      }
+    },
+    onError: (e: Error) => toast.error("Test failed", { description: e.message }),
   });
 
   const disconnect = useMutation({
@@ -36,7 +48,10 @@ export default function SettingsPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["fb-status"] });
       test.reset();
+      toast.success("Facebook Page disconnected");
     },
+    onError: (e: Error) =>
+      toast.error("Disconnect failed", { description: e.message }),
   });
 
   return (
@@ -108,20 +123,6 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {test.data && (
-            <div
-              className={`text-sm rounded-md p-2 ${
-                test.data.ok
-                  ? "bg-green-50 text-green-800"
-                  : "bg-destructive/10 text-destructive"
-              }`}
-            >
-              {test.data.ok
-                ? `✓ Token still valid for ${test.data.page_name}`
-                : `✗ ${test.data.error || "Token invalid"}`}
-            </div>
-          )}
-
           <div className="border-t pt-4 space-y-3">
             <div className="text-sm font-medium">
               {status?.connected ? "Update credentials" : "Connect a Facebook Page"}
@@ -146,12 +147,6 @@ export default function SettingsPage() {
                 className="font-mono text-xs"
               />
             </div>
-
-            {connect.isError && (
-              <div className="text-sm text-destructive rounded-md bg-destructive/10 p-2">
-                ✗ {(connect.error as Error)?.message || "Validation failed"}
-              </div>
-            )}
 
             <Button
               onClick={() => connect.mutate()}
