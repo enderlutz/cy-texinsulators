@@ -155,10 +155,10 @@ export default function ApplyPage() {
       <div className="max-w-xl mx-auto space-y-4">
         <div className="flex justify-end gap-1">
           <LangBtn active={lang === "en"} onClick={() => setLanguage("en")}>
-            EN
+            English
           </LangBtn>
           <LangBtn active={lang === "es"} onClick={() => setLanguage("es")}>
-            ES
+            Español
           </LangBtn>
         </div>
 
