@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { Briefcase, Kanban, Settings as SettingsIcon } from "lucide-react";
+import { BookOpen, Briefcase, Kanban, Settings as SettingsIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function App() {
@@ -15,6 +15,7 @@ export default function App() {
           <NavItem to="/jobs" icon={<Briefcase size={16} />} label="Jobs" />
         </nav>
         <nav className="space-y-1 pt-4 border-t">
+          <NavItem to="/setup/facebook" icon={<BookOpen size={16} />} label="FB Setup Guide" />
           <NavItem to="/settings" icon={<SettingsIcon size={16} />} label="Settings" />
         </nav>
       </aside>
