@@ -18,7 +18,7 @@ def score_applicant(
         ctype = rule["criteria_type"]
 
         match ctype:
-            case "required":
+            case "required" | "text":
                 if value:
                     score += weight
             case "equals":

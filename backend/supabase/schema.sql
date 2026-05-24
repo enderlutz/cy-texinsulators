@@ -30,7 +30,7 @@ create table if not exists screening_questions (
   question      text not null,
   question_es   text,
   field_key     text not null,
-  criteria_type text not null check (criteria_type in ('equals','contains','min','max','required')),
+  criteria_type text not null check (criteria_type in ('equals','contains','min','max','required','text')),
   criteria_value text,
   weight        int not null default 1,
   created_at    timestamptz not null default now()

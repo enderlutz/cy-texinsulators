@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 Stage = Literal["new", "contacted", "interview", "hired", "rejected"]
 JobStatus = Literal["draft", "active", "paused", "closed"]
-CriteriaType = Literal["equals", "contains", "min", "max", "required"]
+CriteriaType = Literal["equals", "contains", "min", "max", "required", "text"]
 
 
 class JobCreate(BaseModel):

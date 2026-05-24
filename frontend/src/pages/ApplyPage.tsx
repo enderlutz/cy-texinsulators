@@ -241,9 +241,16 @@ export default function ApplyPage() {
                             </Button>
                           ))}
                         </div>
+                      ) : q.criteria_type === "text" ? (
+                        <Input
+                          value={answers[q.field_key] || ""}
+                          onChange={(e) =>
+                            setAnswers({ ...answers, [q.field_key]: e.target.value })
+                          }
+                        />
                       ) : (
                         <Textarea
-                          rows={2}
+                          rows={3}
                           value={answers[q.field_key] || ""}
                           onChange={(e) =>
                             setAnswers({ ...answers, [q.field_key]: e.target.value })
