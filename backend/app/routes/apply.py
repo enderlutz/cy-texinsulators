@@ -46,6 +46,7 @@ def public_job(job_id: str):
             {
                 "id": q["id"],
                 "question": q["question"],
+                "question_es": q.get("question_es"),
                 "field_key": q["field_key"],
                 "criteria_type": q["criteria_type"],
             }
@@ -95,11 +96,20 @@ def submit_application(payload: PublicApplication):
     if not applicant:
         raise HTTPException(500, "failed to record application")
 
-    # Speed-to-lead auto-reply.
-    auto_msg = (
-        f"Hi {payload.full_name.split(' ')[0]}, thanks for applying to "
-        f"{job['title']}. We'll be in touch shortly to schedule a quick chat."
-    )
+    # Speed-to-lead auto-reply (bilingual based on the language they applied in).
+    first_name = payload.full_name.split(" ")[0]
+    if payload.lang == "es":
+        auto_msg = (
+            f"Hola {first_name}, gracias por aplicar al puesto de "
+            f"{job['title']}. Nos comunicaremos pronto para coordinar una llamada breve."
+        )
+        email_subject = f"Recibimos tu solicitud — {job['title']}"
+    else:
+        auto_msg = (
+            f"Hi {first_name}, thanks for applying to "
+            f"{job['title']}. We'll be in touch shortly to schedule a quick chat."
+        )
+        email_subject = f"We got your application — {job['title']}"
     comms = []
     if payload.phone:
         sms_res = send_sms(payload.phone, auto_msg)
@@ -118,9 +128,7 @@ def submit_application(payload: PublicApplication):
             .execute()
         )
     if payload.email:
-        email_res = send_email(
-            payload.email, f"We got your application — {job['title']}", auto_msg
-        )
+        email_res = send_email(payload.email, email_subject, auto_msg)
         comms.append(
             sb.table("communications")
             .insert(

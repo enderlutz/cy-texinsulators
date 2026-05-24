@@ -28,6 +28,7 @@ create table if not exists screening_questions (
   id            uuid primary key default gen_random_uuid(),
   job_id        uuid not null references jobs(id) on delete cascade,
   question      text not null,
+  question_es   text,
   field_key     text not null,
   criteria_type text not null check (criteria_type in ('equals','contains','min','max','required')),
   criteria_value text,

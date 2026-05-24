@@ -193,6 +193,7 @@ CREATE TABLE IF NOT EXISTS screening_questions (
     id TEXT PRIMARY KEY,
     job_id TEXT NOT NULL,
     question TEXT NOT NULL,
+    question_es TEXT,
     field_key TEXT NOT NULL,
     criteria_type TEXT NOT NULL,
     criteria_value TEXT,

@@ -48,6 +48,7 @@ class PublicApplication(BaseModel):
     phone: str | None = None
     email: str | None = None
     answers: dict[str, str] = Field(default_factory=dict)
+    lang: Literal["en", "es"] = "en"
 
 
 class FbConnectRequest(BaseModel):
@@ -66,6 +67,7 @@ class FbIntegrationStatus(BaseModel):
 class ScreeningQuestionCreate(BaseModel):
     job_id: str
     question: str
+    question_es: str | None = None
     field_key: str
     criteria_type: CriteriaType
     criteria_value: str | None = None

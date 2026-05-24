@@ -41,10 +41,13 @@ export interface PublicJob {
   questions: {
     id: string;
     question: string;
+    question_es?: string;
     field_key: string;
     criteria_type: string;
   }[];
 }
+
+export type Lang = "en" | "es";
 
 export interface ShareLinks {
   apply_url: string;
@@ -118,6 +121,7 @@ export const api = {
     phone?: string;
     email?: string;
     answers: Record<string, string>;
+    lang: Lang;
   }) =>
     request<{ ok: boolean; applicant_id: string; score: number }>(`/public/apply`, {
       method: "POST",
