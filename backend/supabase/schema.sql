@@ -1,13 +1,12 @@
--- Insulation Hiring Platform — Supabase schema
--- Run this in the Supabase SQL editor (or via `supabase db push`)
-
-create extension if not exists "uuid-ossp";
+-- Cy-Tex Insulators Hiring Platform — Supabase schema
+-- Run this in the Supabase SQL editor.
+-- Uses gen_random_uuid() (pgcrypto, pre-enabled on Supabase) — no extensions to enable.
 
 -- ============================================================================
 -- jobs: a hiring posting owned by the company
 -- ============================================================================
 create table if not exists jobs (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
   title           text not null,
   description     text,
   location        text,
@@ -26,7 +25,7 @@ create table if not exists jobs (
 -- screening_questions: per-job filter criteria applied to incoming applicants
 -- ============================================================================
 create table if not exists screening_questions (
-  id            uuid primary key default uuid_generate_v4(),
+  id            uuid primary key default gen_random_uuid(),
   job_id        uuid not null references jobs(id) on delete cascade,
   question      text not null,
   field_key     text not null,
@@ -40,7 +39,7 @@ create table if not exists screening_questions (
 -- applicants: every lead that comes in (FB Lead Ads webhook, manual, etc.)
 -- ============================================================================
 create table if not exists applicants (
-  id              uuid primary key default uuid_generate_v4(),
+  id              uuid primary key default gen_random_uuid(),
   job_id          uuid references jobs(id) on delete set null,
   full_name       text,
   phone           text,
@@ -63,7 +62,7 @@ create index if not exists idx_applicants_created on applicants(created_at desc)
 -- communications: SMS and email log per applicant
 -- ============================================================================
 create table if not exists communications (
-  id           uuid primary key default uuid_generate_v4(),
+  id           uuid primary key default gen_random_uuid(),
   applicant_id uuid not null references applicants(id) on delete cascade,
   channel      text not null check (channel in ('sms','email')),
   direction    text not null check (direction in ('outbound','inbound')),
