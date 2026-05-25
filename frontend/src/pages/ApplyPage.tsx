@@ -153,7 +153,7 @@ export default function ApplyPage() {
   return (
     <div className="min-h-screen bg-muted/30 py-6 px-4">
       <div className="max-w-xl mx-auto space-y-4">
-        <div className="flex justify-end gap-1">
+        <div className="flex justify-end gap-2">
           <LangBtn active={lang === "en"} onClick={() => setLanguage("en")}>
             English
           </LangBtn>
@@ -300,10 +300,10 @@ function LangBtn({
     <button
       onClick={onClick}
       className={
-        "text-sm px-4 py-2 rounded-md border transition min-h-[40px] " +
+        "text-base font-medium px-6 py-3 rounded-md border transition min-h-[48px] " +
         (active
-          ? "bg-foreground text-background border-foreground"
-          : "bg-background text-foreground hover:bg-accent")
+          ? "bg-amber-500 text-white border-amber-500 shadow-sm"
+          : "bg-background text-foreground hover:bg-amber-50 hover:border-amber-300")
       }
     >
       {children}
