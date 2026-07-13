@@ -46,11 +46,11 @@ export default function PipelinePage() {
         </span>
       </div>
 
-      <div className="grid grid-cols-5 gap-3">
+      <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 md:grid md:grid-cols-5">
         {STAGES.map((stage) => (
           <div
             key={stage}
-            className="rounded-lg bg-muted/40 p-2 min-h-[400px]"
+            className="rounded-lg bg-muted/40 p-2 min-h-[400px] w-64 shrink-0 md:w-auto"
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               const id = e.dataTransfer.getData("text/applicant-id");

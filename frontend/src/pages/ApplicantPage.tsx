@@ -90,7 +90,7 @@ export default function ApplicantPage() {
             <CardTitle>Lead form responses</CardTitle>
           </CardHeader>
           <CardContent>
-            <dl className="grid grid-cols-2 gap-2 text-sm">
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
               {Object.entries(applicant.raw_lead_data).map(([k, v]) => (
                 <div key={k}>
                   <dt className="text-xs uppercase text-muted-foreground">{k}</dt>

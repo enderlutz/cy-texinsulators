@@ -277,7 +277,7 @@ export default function FbSetupPage() {
         <CardContent>
           <div className="text-sm space-y-2">
             {ERRORS.map(({ error, fix }, i) => (
-              <div key={i} className="grid grid-cols-[1fr_2fr] gap-3 border-b last:border-0 pb-2 last:pb-0">
+              <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_2fr] gap-1 sm:gap-3 border-b last:border-0 pb-2 last:pb-0">
                 <code className="text-xs text-destructive">{error}</code>
                 <div className="text-muted-foreground">{fix}</div>
               </div>

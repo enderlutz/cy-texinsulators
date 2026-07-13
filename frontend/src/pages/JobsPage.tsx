@@ -30,8 +30,8 @@ export default function JobsPage() {
   });
 
   return (
-    <div className="grid grid-cols-3 gap-6">
-      <div className="col-span-1">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="lg:col-span-1">
         <Card>
           <CardHeader>
             <CardTitle>New job posting</CardTitle>
@@ -73,7 +73,7 @@ export default function JobsPage() {
         </Card>
       </div>
 
-      <div className="col-span-2 space-y-3">
+      <div className="lg:col-span-2 space-y-3">
         <h2 className="text-2xl font-semibold">Jobs</h2>
         {jobs.length === 0 && (
           <div className="text-sm text-muted-foreground">
