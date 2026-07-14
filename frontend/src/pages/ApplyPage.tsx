@@ -63,6 +63,8 @@ const T = {
   },
 };
 
+const COMPANY = "Cy-Tex Insulators";
+
 function detectInitialLang(qsLang: string | null): Lang {
   if (qsLang === "es" || qsLang === "en") return qsLang;
   const browser = (navigator.language || "en").toLowerCase();
@@ -121,7 +123,8 @@ export default function ApplyPage() {
   }
   if (error || !job) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-muted/30">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-6 bg-muted/30">
+        <div className="text-lg font-bold tracking-tight">{COMPANY}</div>
         <Card className="max-w-md w-full">
           <CardHeader>
             <CardTitle>{t.closedTitle}</CardTitle>
@@ -136,7 +139,8 @@ export default function ApplyPage() {
 
   if (submit.isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-muted/30">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-6 bg-muted/30">
+        <div className="text-lg font-bold tracking-tight">{COMPANY}</div>
         <Card className="max-w-md w-full">
           <CardHeader>
             <CardTitle>{t.successTitle}</CardTitle>
@@ -153,13 +157,16 @@ export default function ApplyPage() {
   return (
     <div className="min-h-screen bg-muted/30 py-6 px-4">
       <div className="max-w-xl mx-auto space-y-4">
-        <div className="flex justify-end gap-2">
-          <LangBtn active={lang === "en"} onClick={() => setLanguage("en")}>
-            English
-          </LangBtn>
-          <LangBtn active={lang === "es"} onClick={() => setLanguage("es")}>
-            Español
-          </LangBtn>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="text-lg font-bold tracking-tight">{COMPANY}</div>
+          <div className="flex gap-2">
+            <LangBtn active={lang === "en"} onClick={() => setLanguage("en")}>
+              English
+            </LangBtn>
+            <LangBtn active={lang === "es"} onClick={() => setLanguage("es")}>
+              Español
+            </LangBtn>
+          </div>
         </div>
 
         <Card>
