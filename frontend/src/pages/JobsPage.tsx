@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Copy, Facebook, Link as LinkIcon } from "lucide-react";
+import { Copy, Facebook, Link as LinkIcon, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { api, Job } from "@/lib/api";
+import { api, Job, JobStatus } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,12 +88,50 @@ export default function JobsPage() {
   );
 }
 
+const STATUS_OPTIONS: JobStatus[] = ["draft", "active", "paused", "closed"];
+
 function JobCard({ job }: { job: Job }) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState<string>("");
   const [applyUrl, setApplyUrl] = useState<string>("");
   const [copied, setCopied] = useState<"link" | "post" | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [edit, setEdit] = useState<Partial<Job>>(job);
+
+  const save = useMutation({
+    mutationFn: () =>
+      api.updateJob(job.id, {
+        title: edit.title,
+        location: edit.location,
+        pay_range: edit.pay_range,
+        description: edit.description,
+        status: edit.status,
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["jobs"] });
+      setEditing(false);
+      toast.success("Job updated");
+    },
+    onError: (e: Error) =>
+      toast.error("Could not update job", { description: e.message }),
+  });
+
+  const remove = useMutation({
+    mutationFn: () => api.deleteJob(job.id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["jobs"] });
+      toast.success("Job deleted");
+    },
+    onError: (e: Error) =>
+      toast.error("Could not delete job", { description: e.message }),
+  });
+
+  const startEdit = () => {
+    setEdit(job);
+    setOpen(false);
+    setEditing(true);
+  };
 
   const share = useMutation({
     mutationFn: () => api.shareLinks(job.id),
@@ -135,11 +173,70 @@ function JobCard({ job }: { job: Job }) {
     toast.success(kind === "link" ? "Apply link copied" : "Post message copied");
   };
 
+  if (editing) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Edit job</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Input
+            placeholder="Title"
+            value={edit.title || ""}
+            onChange={(e) => setEdit({ ...edit, title: e.target.value })}
+          />
+          <Input
+            placeholder="Location"
+            value={edit.location || ""}
+            onChange={(e) => setEdit({ ...edit, location: e.target.value })}
+          />
+          <Input
+            placeholder="Pay range"
+            value={edit.pay_range || ""}
+            onChange={(e) => setEdit({ ...edit, pay_range: e.target.value })}
+          />
+          <Textarea
+            placeholder="Description"
+            value={edit.description || ""}
+            onChange={(e) => setEdit({ ...edit, description: e.target.value })}
+            rows={4}
+          />
+          <div className="space-y-1">
+            <label className="text-xs text-muted-foreground">Status</label>
+            <select
+              value={edit.status}
+              onChange={(e) => setEdit({ ...edit, status: e.target.value as JobStatus })}
+              className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm capitalize"
+            >
+              {STATUS_OPTIONS.map((s) => (
+                <option key={s} value={s} className="capitalize">
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-wrap gap-2 pt-1">
+            <Button
+              size="sm"
+              onClick={() => save.mutate()}
+              disabled={!edit.title || save.isPending}
+            >
+              {save.isPending ? "Saving…" : "Save changes"}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setEditing(false)}>
+              Cancel
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>{job.title}</CardTitle>
-        <div className="flex items-center gap-2">
+      <CardHeader className="flex flex-row items-start justify-between gap-2">
+        <CardTitle className="min-w-0 break-words">{job.title}</CardTitle>
+        <div className="flex items-center gap-2 shrink-0">
           {job.published_at && (
             <Badge className="bg-blue-100 text-blue-800 border-transparent">
               published
@@ -168,6 +265,20 @@ function JobCard({ job }: { job: Job }) {
             disabled={share.isPending}
           >
             <Facebook size={14} /> {open ? "Hide" : "Publish & Share"}
+          </Button>
+          <Button size="sm" variant="outline" onClick={startEdit}>
+            <Pencil size={14} /> Edit
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-destructive hover:text-destructive"
+            onClick={() => {
+              if (confirm(`Delete "${job.title}"? This cannot be undone.`)) remove.mutate();
+            }}
+            disabled={remove.isPending}
+          >
+            <Trash2 size={14} /> {remove.isPending ? "Deleting…" : "Delete"}
           </Button>
         </div>
 

@@ -32,21 +32,8 @@ def wait_for_api() -> None:
 def main() -> None:
     wait_for_api()
 
-    job = httpx.post(
-        f"{API}/jobs",
-        json={
-            "title": "Insulation Installer",
-            "description": "Spray-foam + batt installer for residential homes. Houston area.",
-            "location": "Houston, TX",
-            "pay_range": "$22-30/hr + overtime",
-            "status": "active",
-            "fb_lead_form_id": "DEMO_FORM_123",
-        },
-        timeout=5.0,
-    ).json()
-    print(f"created job {job['id']}")
-
-    for q in [
+    # Screening questions shared by both installer roles.
+    screening = [
         {"question": "Do you have your own truck?", "field_key": "has_truck",
          "criteria_type": "equals", "criteria_value": "yes", "weight": 3},
         {"question": "Years of construction experience?", "field_key": "experience_years",
@@ -55,13 +42,34 @@ def main() -> None:
          "criteria_type": "equals", "criteria_value": "yes", "weight": 2},
         {"question": "Phone number", "field_key": "phone_number",
          "criteria_type": "required", "weight": 1},
-    ]:
-        httpx.post(
-            f"{API}/screening",
-            json={"job_id": job["id"], **q},
-            timeout=5.0,
-        )
-    print("added 4 screening questions")
+    ]
+
+    def create_job(payload: dict) -> dict:
+        created = httpx.post(f"{API}/jobs", json=payload, timeout=5.0).json()
+        print(f"created job {created['id']} — {payload['title']}")
+        for q in screening:
+            httpx.post(f"{API}/screening", json={"job_id": created["id"], **q}, timeout=5.0)
+        return created
+
+    # Job #1 — the original spray-foam / batt installer posting.
+    job = create_job({
+        "title": "Insulation Installer",
+        "description": "Spray-foam + batt installer for residential homes. Houston area.",
+        "location": "Houston, TX",
+        "pay_range": "$22-30/hr + overtime",
+        "status": "active",
+        "fb_lead_form_id": "DEMO_FORM_123",
+    })
+
+    # Job #2 — blow-in + remediation crew (they hire across all service types).
+    create_job({
+        "title": "Insulation Installer (Blow-In & Remediation)",
+        "description": "Blow-in insulation and full remediations. Houston area.",
+        "location": "Houston, TX",
+        "pay_range": "$22-30/hr + overtime",
+        "status": "active",
+    })
+    print("added screening questions to both jobs")
 
     applicants = [
         {
