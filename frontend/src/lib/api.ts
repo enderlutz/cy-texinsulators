@@ -47,6 +47,18 @@ export interface PublicJob {
   }[];
 }
 
+export interface ScreeningQuestion {
+  id: string;
+  job_id: string;
+  question: string;
+  question_es?: string;
+  field_key: string;
+  criteria_type: string;
+  criteria_value?: string;
+  weight: number;
+  created_at: string;
+}
+
 export type Lang = "en" | "es";
 
 export interface ShareLinks {
@@ -105,6 +117,14 @@ export const api = {
     request<{ result: { status: string } }>(`/applicants/${id}/messages`, {
       method: "POST",
       body: JSON.stringify(payload),
+    }),
+
+  listScreening: (job_id: string) =>
+    request<ScreeningQuestion[]>(`/screening/job/${job_id}`),
+  copyScreening: (from_job_id: string, to_job_id: string) =>
+    request<{ copied: number; skipped: number }>(`/screening/copy`, {
+      method: "POST",
+      body: JSON.stringify({ from_job_id, to_job_id }),
     }),
 
   shareLinks: (job_id: string) => request<ShareLinks>(`/jobs/${job_id}/share`),

@@ -79,6 +79,11 @@ class ScreeningQuestion(ScreeningQuestionCreate):
     created_at: datetime
 
 
+class CopyQuestionsRequest(BaseModel):
+    from_job_id: str
+    to_job_id: str
+
+
 class ApplicantCreate(BaseModel):
     job_id: str | None = None
     full_name: str | None = None

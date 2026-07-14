@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Copy, Facebook, Link as LinkIcon, Pencil, Trash2 } from "lucide-react";
+import { Copy, Facebook, Link as LinkIcon, ListChecks, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { api, Job, JobStatus } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,13 +17,28 @@ export default function JobsPage() {
     description: "",
     status: "draft",
   });
+  const [templateFrom, setTemplateFrom] = useState<string>("");
 
   const create = useMutation({
-    mutationFn: () => api.createJob(draft),
-    onSuccess: (job) => {
+    mutationFn: async () => {
+      const job = await api.createJob(draft);
+      // Optionally seed the new job with another job's screening questions,
+      // so an existing posting can act as a reusable template.
+      let copied = 0;
+      if (templateFrom) {
+        const res = await api.copyScreening(templateFrom, job.id);
+        copied = res.copied;
+      }
+      return { job, copied };
+    },
+    onSuccess: ({ job, copied }) => {
       qc.invalidateQueries({ queryKey: ["jobs"] });
+      qc.invalidateQueries({ queryKey: ["screening", job.id] });
       setDraft({ title: "", description: "", status: "draft" });
-      toast.success(`Job created: ${job.title}`);
+      setTemplateFrom("");
+      toast.success(`Job created: ${job.title}`, {
+        description: copied ? `Copied ${copied} screening question(s)` : undefined,
+      });
     },
     onError: (e: Error) =>
       toast.error("Could not create job", { description: e.message }),
@@ -58,6 +73,25 @@ export default function JobsPage() {
               onChange={(e) => setDraft({ ...draft, description: e.target.value })}
               rows={4}
             />
+            {jobs.length > 0 && (
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">
+                  Copy screening questions from (optional template)
+                </label>
+                <select
+                  value={templateFrom}
+                  onChange={(e) => setTemplateFrom(e.target.value)}
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="">— None (no questions) —</option>
+                  {jobs.map((j) => (
+                    <option key={j.id} value={j.id}>
+                      {j.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <Button
               className="w-full"
               disabled={!draft.title || create.isPending}
@@ -66,6 +100,7 @@ export default function JobsPage() {
               {create.isPending ? "Creating…" : "Create job"}
             </Button>
             <p className="text-xs text-muted-foreground">
+              Pick a template above to reuse another job's application questions.
               After creating, click "Publish" on the card to post to Facebook and
               get a shareable apply link.
             </p>
@@ -81,7 +116,7 @@ export default function JobsPage() {
           </div>
         )}
         {jobs.map((j) => (
-          <JobCard key={j.id} job={j} />
+          <JobCard key={j.id} job={j} allJobs={jobs} />
         ))}
       </div>
     </div>
@@ -90,7 +125,7 @@ export default function JobsPage() {
 
 const STATUS_OPTIONS: JobStatus[] = ["draft", "active", "paused", "closed"];
 
-function JobCard({ job }: { job: Job }) {
+function JobCard({ job, allJobs }: { job: Job; allJobs: Job[] }) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState<string>("");
@@ -98,6 +133,35 @@ function JobCard({ job }: { job: Job }) {
   const [copied, setCopied] = useState<"link" | "post" | null>(null);
   const [editing, setEditing] = useState(false);
   const [edit, setEdit] = useState<Partial<Job>>(job);
+  const [copyOpen, setCopyOpen] = useState(false);
+  const [copyFrom, setCopyFrom] = useState<string>("");
+
+  const { data: questions = [] } = useQuery({
+    queryKey: ["screening", job.id],
+    queryFn: () => api.listScreening(job.id),
+  });
+
+  const copyQuestions = useMutation({
+    mutationFn: () => api.copyScreening(copyFrom, job.id),
+    onSuccess: (res) => {
+      qc.invalidateQueries({ queryKey: ["screening", job.id] });
+      setCopyOpen(false);
+      setCopyFrom("");
+      if (res.copied > 0) {
+        toast.success(`Copied ${res.copied} question(s)`, {
+          description: res.skipped ? `${res.skipped} already existed, skipped` : undefined,
+        });
+      } else {
+        toast.info("Nothing to copy", {
+          description: "Those questions already exist on this job",
+        });
+      }
+    },
+    onError: (e: Error) =>
+      toast.error("Could not copy questions", { description: e.message }),
+  });
+
+  const otherJobs = allJobs.filter((j) => j.id !== job.id);
 
   const save = useMutation({
     mutationFn: () =>
@@ -258,6 +322,15 @@ function JobCard({ job }: { job: Job }) {
         {job.pay_range && <div>{job.pay_range}</div>}
         {job.description && <p className="whitespace-pre-wrap">{job.description}</p>}
 
+        <div className="flex items-center gap-1.5 text-xs">
+          <ListChecks size={14} />
+          {questions.length > 0 ? (
+            <span>{questions.length} application question{questions.length === 1 ? "" : "s"}</span>
+          ) : (
+            <span className="text-amber-600">No application questions yet</span>
+          )}
+        </div>
+
         <div className="flex flex-wrap gap-2 pt-2">
           <Button
             size="sm"
@@ -269,6 +342,15 @@ function JobCard({ job }: { job: Job }) {
           <Button size="sm" variant="outline" onClick={startEdit}>
             <Pencil size={14} /> Edit
           </Button>
+          {otherJobs.length > 0 && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setCopyOpen((v) => !v)}
+            >
+              <ListChecks size={14} /> Copy questions
+            </Button>
+          )}
           <Button
             size="sm"
             variant="outline"
@@ -281,6 +363,39 @@ function JobCard({ job }: { job: Job }) {
             <Trash2 size={14} /> {remove.isPending ? "Deleting…" : "Delete"}
           </Button>
         </div>
+
+        {copyOpen && otherJobs.length > 0 && (
+          <div className="space-y-2 mt-1 p-3 rounded-md border bg-muted/30">
+            <label className="text-xs font-medium text-foreground">
+              Copy application questions from another job into "{job.title}"
+            </label>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <select
+                value={copyFrom}
+                onChange={(e) => setCopyFrom(e.target.value)}
+                className="flex-1 h-9 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="">— Choose a job to copy from —</option>
+                {otherJobs.map((j) => (
+                  <option key={j.id} value={j.id}>
+                    {j.title}
+                  </option>
+                ))}
+              </select>
+              <Button
+                size="sm"
+                onClick={() => copyQuestions.mutate()}
+                disabled={!copyFrom || copyQuestions.isPending}
+              >
+                {copyQuestions.isPending ? "Copying…" : "Copy"}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Adds any questions not already on this job. Existing questions and
+              applicants are left untouched.
+            </p>
+          </div>
+        )}
 
         {open && (
           <div className="space-y-3 mt-2 p-3 rounded-md border bg-muted/30">
